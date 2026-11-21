@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101827">
+  <title>IoT Environmental Monitoring</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">⌁</div>
+        <div><strong>Enviro<span>Sense</span></strong><small>IoT MONITORING</small></div>
+      </div>
+      <div class="side-label">MENU UTAMA</div>
+      <a class="nav-link active" href="#overview"><span>▦</span> Overview</a>
+      <a class="nav-link" href="#analytics"><span>⌁</span> Analitik Sensor</a>
+      <a class="nav-link" href="#history"><span>◷</span> Riwayat Data</a>
+      <div class="sidebar-bottom">
+        <div class="device-mini"><span class="pulse-dot"></span><div><b>ESP32 Device</b><small id="side-device-status">Menunggu data</small></div></div>
+        <small class="sidebar-note">Environmental Monitoring System</small>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <div class="eyebrow">IOT / ENVIRONMENT</div>
+          <h1>Environmental Overview</h1>
+          <p class="subtitle">Pantau kondisi lingkungan dari sensor ESP32 secara berkala.</p>
+        </div>
+        <div class="top-actions">
+          <div class="connection-pill" id="connection-pill"><span class="status-dot"></span><span id="connection-text">Menghubungkan...</span></div>
+          <button class="icon-button" id="refresh-btn" title="Muat ulang data" aria-label="Muat ulang data">↻</button>
+        </div>
+      </header>
+
+      <section class="status-banner" id="alert-banner">
+        <div class="banner-icon" id="banner-icon">✓</div>
+        <div><b id="alert-title">Menunggu data sensor</b><p id="alert-description">Dashboard sedang mengambil data dari backend.</p></div>
+        <span class="banner-time" id="last-update">Belum ada pembaruan</span>
+      </section>
+      <section class="threshold-panel panel">
+        <div class="threshold-copy">
+          <b>Pengaturan ambang peringatan</b>
+          <p>Atur batas suhu dan kelembapan udara untuk status alert dashboard.</p>
+        </div>
+        <div class="threshold-controls">
+          <label>Suhu (°C)<input id="temp-threshold" type="number" min="-20" max="100" step="0.5" value="35"></label>
+          <label>Kelembapan (%)<input id="humidity-threshold" type="number" min="0" max="100" step="1" value="80"></label>
+          <button id="save-thresholds" class="primary-button" type="button">Simpan batas</button>
+        </div>
+      </section>
+
+      <section id="overview">
+        <div class="section-heading"><div><h2>Ringkasan Sensor</h2><p>Nilai terbaru yang diterima server</p></div><span class="live-label"><i></i> LIVE UPDATE · 5 DETIK</span></div>
+        <div class="metric-grid">
+          <article class="metric-card temperature">
+            <div class="metric-top"><div class="metric-icon">°</div><span class="metric-tag">DHT22</span></div>
+            <p class="metric-name">Suhu Udara</p><div class="metric-value"><span id="temperature">--</span><small>°C</small></div>
+            <div class="metric-foot"><span class="metric-indicator"></span><span id="temperature-note">Menunggu pembacaan</span></div>
+          </article>
+          <article class="metric-card humidity">
+            <div class="metric-top"><div class="metric-icon">≈</div><span class="metric-tag">DHT22</span></div>
+            <p class="metric-name">Kelembapan Udara</p><div class="metric-value"><span id="humidity">--</span><small>%</small></div>
+            <div class="metric-foot"><span class="metric-indicator"></span><span id="humidity-note">Menunggu pembacaan</span></div>
+          </article>
+          <article class="metric-card light">
+            <div class="metric-top"><div class="metric-icon">☼</div><span class="metric-tag">LDR</span></div>
+            <p class="metric-name">Intensitas Cahaya</p><div class="metric-value"><span id="light">--</span><small>ADC</small></div>
+            <div class="metric-foot"><span class="metric-indicator"></span><span>Rentang pembacaan 0–4095</span></div>
+          </article>
+          <article class="metric-card moisture">
+            <div class="metric-top"><div class="metric-icon">⌁</div><span class="metric-tag">POTENSIOMETER</span></div>
+            <p class="metric-name">Simulasi Kelembapan Tanah</p><div class="metric-value"><span id="moisture">--</span><small>ADC</small></div>
+            <div class="metric-foot"><span class="metric-indicator"></span><span>Nilai analog 0–4095</span></div>
+          </article>
+        </div>
+      </section>
+
+      <section id="analytics" class="analytics-section">
+        <div class="section-heading"><div><h2>Analitik Sensor</h2><p>Perubahan nilai berdasarkan data yang tersimpan</p></div>
+          <select id="chart-range" class="range-select" aria-label="Jumlah data grafik"><option value="20">20 data terakhir</option><option value="50">50 data terakhir</option><option value="100" selected>100 data terakhir</option></select>
+        </div>
+        <div class="chart-grid">
+          <article class="panel chart-panel"><div class="panel-heading"><div><h3>Suhu & Kelembapan</h3><p>Data dari sensor DHT22</p></div><span class="chart-unit">°C / %</span></div><div class="chart-wrap"><canvas id="climateChart"></canvas></div></article>
+          <article class="panel chart-panel"><div class="panel-heading"><div><h3>Cahaya & Kelembapan Tanah</h3><p>Nilai analog sensor / simulasi</p></div><span class="chart-unit">ADC</span></div><div class="chart-wrap"><canvas id="analogChart"></canvas></div></article>
+        </div>
+      </section>
+
+      <section id="history" class="history-section">
+        <div class="section-heading"><div><h2>Riwayat Data</h2><p>Catatan pengiriman sensor terbaru</p></div><div class="history-actions"><span class="record-count" id="record-count">0 data</span><a class="export-button" href="/api/export.csv">↓ Ekspor CSV</a></div></div>
+        <article class="panel table-panel">
+          <div class="table-scroll"><table><thead><tr><th>WAKTU</th><th>SUHU</th><th>KELEMBAPAN UDARA</th><th>CAHAYA (ADC)</th><th>TANAH (ADC)</th><th>STATUS</th></tr></thead><tbody id="history-body"><tr><td colspan="6" class="empty-state">Belum ada data sensor.</td></tr></tbody></table></div>
+        </article>
+      </section>
+      <footer>EnviroSense · IoT Environmental Monitoring System <span>Data diperbarui otomatis setiap 5 detik</span></footer>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

@@ -133,16 +133,21 @@ The testing process includes:
 - Alert threshold configuration.
 - CSV export functionality.
 
+
 ## Project Screenshots
 
 ### Wokwi Circuit
-![Wokwi Circuit](screenshots/wokwi.png)
+![Wokwi Circuit](docs/Screenshots/wokwi.png)
 
 ### ESP32 Serial Monitor
-![Serial Monitor](screenshots/serial monitor.png)
+![ESP32 Serial Monitor](docs/Screenshots/serial%20monitor.png)
 
 ### EnviroSense Dashboard
-![Dashboard](screenshots/dashboard1.png)
+![Dashboard Overview](docs/Screenshots/dashboard1.png)
+
+### Dashboard Monitoring
+![Dashboard Monitoring](docs/Screenshots/dashboard2.png)
+
 
 ## Project Scope and Limitations
 
